@@ -1,0 +1,55 @@
+name: Create AKS Environment and Evaluate
+
+on:
+  workflow_dispatch:
+
+permissions:
+      id-token: write
+      contents: read
+
+jobs:
+  aks:
+    uses: Azure/AKS-Construction/.github/workflows/AKSC_Deploy.yml@0.9.15
+    with:
+      templateVersion: 0.9.15
+      rg: AksBicepAcc-Ci-Brownfield
+      resourceName: brownfield
+      templateParams: resourceName=brownfield upgradeChannel=stable AksPaidSkuForSLA=true SystemPoolType=Standard agentCountMax=20 custom_vnet=true enable_aad=true AksDisableLocalAccounts=true enableAzureRBAC=true adminPrincipalId=_USER_OBJECT_ID_ registries_sku=Premium acrPushRolePrincipalId=_USER_OBJECT_ID_ enableACRTrustPolicy=true omsagent=true retentionInDays=30 networkPolicy=azure azurepolicy=audit availabilityZones=["1","2","3"] authorizedIPRanges=["86.161.145.82/32"] ingressApplicationGateway=true appGWcount=0 appGWsku=WAF_v2 appGWmaxCount=10 appgwKVIntegration=true keyVaultAksCSI=true keyVaultCreate=true keyVaultOfficerRolePrincipalId=_USER_OBJECT_ID_ acrUntaggedRetentionPolicyEnabled=true
+    secrets:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      USER_OBJECT_ID: ${{ secrets.USER_OBJECT_ID }}
+  psrule:
+    needs: [aks]
+    runs-on: ubuntu
+    steps:
+      - shell: powershell
+        name: Run PSRule
+        run: |
+          #Fill these out
+          $sub="${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+          $rg="AksBicepAcc-Ci-Brownfield"
+          $tenantId="${{ secrets.AZURE_TENANT_ID }}"
+
+          #Only change these if you really care
+          $templatePath=".wellarchitected-output/templates/"
+          $resultsPath=".wellarchitected-output/results/"
+
+          # Install PSRule.Rules.Azure from the PowerShell Gallery
+          Install-Module -Name 'PSRule.Rules.Azure' -Scope CurrentUser -Force;
+
+          #Connect to Azure
+          Connect-AzAccount -Subscription $sub -UseDeviceAuthentication -Tenant $tenantId
+
+          # Export data from the resource group
+          Export-AzRuleData -ResourceGroupName $rg -OutputPath $templatePath;
+
+          # Check against Azure Rules
+          $resultsFile = Join-Path $resultsPath -childpath "$(New-Guid).txt"
+          $PSRuleResults = Invoke-PSRule -InputPath $templatePath -Module 'PSRule.Rules.Azure' -As Summary;
+          $PSRuleResults | Out-File $resultsFile 
+          Write-Output $PSRuleResults
+
+          #Run a more detailed analysis
+          Invoke-PSRule -InputPath $templatePath -Module 'PSRule.Rules.Azure' -As Detail;
