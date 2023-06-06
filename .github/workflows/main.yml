@@ -37,8 +37,8 @@ jobs:
     with:
       templateVersion: 0.9.15
       rg: ${{ needs.SetupWF.outputs.RG }}
-      resourceName: brownfield
-      templateParams: resourceName=brownfield AksPaidSkuForSLA=true SystemPoolType=Standard agentCountMax=20 custom_vnet=true enable_aad=true AksDisableLocalAccounts=true enableAzureRBAC=true adminPrincipalId=_USER_OBJECT_ID_ registries_sku=Premium acrPushRolePrincipalId=_USER_OBJECT_ID_ enableACRTrustPolicy=true omsagent=true retentionInDays=30 availabilityZones=["1","2","3"] appGWcount=2 appGWsku=WAF_v2 appGWmaxCount=10 keyVaultAksCSI=true keyVaultCreate=true keyVaultOfficerRolePrincipalId=_USER_OBJECT_ID_ acrUntaggedRetentionPolicyEnabled=true defenderForContainers=true
+      resourceName: brownfieldc
+      templateParams: resourceName=brownfieldc AksPaidSkuForSLA=true SystemPoolType=Standard agentCountMax=20 custom_vnet=true enable_aad=true AksDisableLocalAccounts=true enableAzureRBAC=true adminPrincipalId=_USER_OBJECT_ID_ registries_sku=Premium acrPushRolePrincipalId=_USER_OBJECT_ID_ enableACRTrustPolicy=true omsagent=true retentionInDays=30 availabilityZones=["1","2","3"] appGWcount=2 appGWsku=WAF_v2 appGWmaxCount=10 keyVaultAksCSI=true keyVaultCreate=true keyVaultOfficerRolePrincipalId=_USER_OBJECT_ID_ acrUntaggedRetentionPolicyEnabled=true defenderForContainers=true upgradeChannel=patch  custom_vnet=true vnetAksSubnetAddressPrefix=10.240.0.0/24 CreateNetworkSecurityGroups=true maxPods=250 networkPluginMode=Overlay ebpfDataplane=cilium
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
