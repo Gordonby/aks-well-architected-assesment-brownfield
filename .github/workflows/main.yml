@@ -47,6 +47,7 @@ jobs:
   psrule:
     needs: [aks]
     runs-on: ubuntu-latest
+    if: '!cancelled()'
     steps:
       - name: Az CLI login
         uses: azure/login@v1.4.6
