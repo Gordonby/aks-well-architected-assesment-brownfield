@@ -15,7 +15,7 @@ permissions:
 jobs:
   aks:
     uses: Azure/AKS-Construction/.github/workflows/AKSC_Deploy.yml@0.9.15
-    if: ${{ github.event.inputs.DeployCluster }}
+    if: ${{ github.event.inputs.DeployCluster == 'true' }}
     with:
       templateVersion: 0.9.15
       rg: AksBicepAcc-Ci-Brownfield
