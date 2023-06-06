@@ -1,6 +1,6 @@
 # AKS Well Architected
 
-Using AKS Construction and PSRule to create a Well Architected configuration for your AKS environment.
+Using [AKS Construction](https://github.com/Azure/AKS-Construction) and [PSRule](https://azure.github.io/PSRule.Rules.Azure/) to create a Well Architected configuration for your AKS environment.
 
 Description | Config in AKS-C | Rules passed | Rules failed
 ----------- | --------------- | ------------ | ------------
