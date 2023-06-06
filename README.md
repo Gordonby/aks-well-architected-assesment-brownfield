@@ -1,3 +1,7 @@
-# PSRule.Brownfield
+# AKS Well Architected
 
-A template for running an ad-hoc [PSRule for Azure](https://azure.github.io/PSRule.Rules.Azure/) Well Architected Assessment
+Using AKS Construction and PSRule to create a Well Architected configuration for your AKS environment.
+
+Description | Rules passed | Rules failed
+----------- | ------------ | ------------
+Well Architected Configuration | 20 | 19
