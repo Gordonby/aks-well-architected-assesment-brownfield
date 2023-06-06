@@ -71,8 +71,8 @@ jobs:
           # Install PSRule.Rules.Azure from the PowerShell Gallery
           Install-Module -Name 'PSRule.Rules.Azure' -Scope CurrentUser -Force;
           
-          # Install PSRule.Rules.Azure from the PowerShell Gallery
-          #Install-Module -Name Az -Repository PSGallery -Force
+          # Install Az from the PowerShell Gallery (To use PSRule for Azure export cmdlets please install Az.Resources.)
+          Install-Module -Name Az -Repository PSGallery -Force
 
           # Export data from the resource group
           Export-AzRuleData -ResourceGroupName $rg -OutputPath $templatePath;
