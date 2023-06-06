@@ -2,6 +2,11 @@ name: Create AKS Environment and Evaluate
 
 on:
   workflow_dispatch:
+    inputs:
+      DeployCluster:
+        description: 'Deploy the AKS Cluster'
+        type: boolean
+        default: true
 
 permissions:
       id-token: write
@@ -10,6 +15,7 @@ permissions:
 jobs:
   aks:
     uses: Azure/AKS-Construction/.github/workflows/AKSC_Deploy.yml@0.9.15
+    if: ${{  github.event.inputs.DeployCluster }}
     with:
       templateVersion: 0.9.15
       rg: AksBicepAcc-Ci-Brownfield
@@ -22,9 +28,9 @@ jobs:
       USER_OBJECT_ID: ${{ secrets.USER_OBJECT_ID }}
   psrule:
     needs: [aks]
-    runs-on: ubuntu
+    runs-on: ubuntu-latest
     steps:
-      - shell: powershell
+      - shell: pwsh
         name: Run PSRule
         run: |
           #Fill these out
