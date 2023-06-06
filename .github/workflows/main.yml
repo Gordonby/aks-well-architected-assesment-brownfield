@@ -15,7 +15,7 @@ permissions:
 jobs:
   aks:
     uses: Azure/AKS-Construction/.github/workflows/AKSC_Deploy.yml@0.9.15
-    if: ${{  github.event.inputs.DeployCluster }}
+    if: ${{ github.event.inputs.DeployCluster }}
     with:
       templateVersion: 0.9.15
       rg: AksBicepAcc-Ci-Brownfield
@@ -30,6 +30,14 @@ jobs:
     needs: [aks]
     runs-on: ubuntu-latest
     steps:
+      - name: Az CLI login
+        uses: azure/login@v1.4.6
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true 
+          
       - shell: pwsh
         name: Run PSRule
         run: |
@@ -44,9 +52,9 @@ jobs:
 
           # Install PSRule.Rules.Azure from the PowerShell Gallery
           Install-Module -Name 'PSRule.Rules.Azure' -Scope CurrentUser -Force;
-
-          #Connect to Azure
-          Connect-AzAccount -Subscription $sub -UseDeviceAuthentication -Tenant $tenantId
+          
+          # Install PSRule.Rules.Azure from the PowerShell Gallery
+          #Install-Module -Name Az -Repository PSGallery -Force
 
           # Export data from the resource group
           Export-AzRuleData -ResourceGroupName $rg -OutputPath $templatePath;
