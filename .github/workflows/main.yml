@@ -7,18 +7,36 @@ on:
         description: 'Deploy the AKS Cluster'
         type: boolean
         default: true
-
+      RG:
+        description: 'Resource Group Name'
+        type: text
+        default: 'AksBicepAcc-Ci-Brownfield'
+        
 permissions:
       id-token: write
       contents: read
 
 jobs:
+  SetupWF:
+    runs-on: ubuntu-latest
+    outputs:
+      RG: "${{ github.event.inputs.RG }}"
+    steps:
+      - name: Reusable workflow
+        run: |
+          echo "Resuable workflows can't be directly passed ENV/INPUTS (yet)"
+          echo "So we need this job to be able to access the value in env.RG"
+          echo "see https://github.community/t/reusable-workflow-env-context-not-available-in-jobs-job-id-with/206111"
+      - name: Param checking
+        run: |
+          echo "Deploy Cluster ${{github.event.inputs.DeployCluster}}"
   aks:
+    needs: [SetupWF]
     uses: Azure/AKS-Construction/.github/workflows/AKSC_Deploy.yml@0.9.15
     if: ${{ github.event.inputs.DeployCluster == 'true' }}
     with:
       templateVersion: 0.9.15
-      rg: AksBicepAcc-Ci-Brownfield
+      rg: ${{ needs.SetupWF.outputs.RG }}
       resourceName: brownfield
       templateParams: resourceName=brownfield upgradeChannel=stable AksPaidSkuForSLA=true SystemPoolType=Standard agentCountMax=20 custom_vnet=true enable_aad=true AksDisableLocalAccounts=true enableAzureRBAC=true adminPrincipalId=_USER_OBJECT_ID_ registries_sku=Premium acrPushRolePrincipalId=_USER_OBJECT_ID_ enableACRTrustPolicy=true omsagent=true retentionInDays=30 networkPolicy=azure azurepolicy=audit availabilityZones=["1","2","3"] authorizedIPRanges=["86.161.145.82/32"] ingressApplicationGateway=true appGWcount=0 appGWsku=WAF_v2 appGWmaxCount=10 appgwKVIntegration=true keyVaultAksCSI=true keyVaultCreate=true keyVaultOfficerRolePrincipalId=_USER_OBJECT_ID_ acrUntaggedRetentionPolicyEnabled=true
     secrets:
@@ -42,7 +60,7 @@ jobs:
         run: |
           #Fill these out
           $sub="${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-          $rg="AksBicepAcc-Ci-Brownfield"
+          $rg="${{ github.event.inputs.RG }}"
           $tenantId="${{ secrets.AZURE_TENANT_ID }}"
 
           #Only change these if you really care
