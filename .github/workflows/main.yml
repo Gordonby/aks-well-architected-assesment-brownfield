@@ -67,7 +67,6 @@ jobs:
 
           #Only change these if you really care
           $templatePath=".wellarchitected-output/templates/"
-          $resultsPath=".wellarchitected-output/results/"
 
           # Install PSRule.Rules.Azure from the PowerShell Gallery
           Install-Module -Name 'PSRule.Rules.Azure' -Scope CurrentUser -Force;
@@ -79,11 +78,16 @@ jobs:
           Export-AzRuleData -ResourceGroupName $rg -OutputPath $templatePath;
 
           # Check against Azure Rules
-          #$resultsFile = Join-Path $resultsPath -childpath "$(New-Guid).txt"
-          $resultsFile = "$(New-Guid).txt"
+          $resultsFile = "psruleout.txt"
           $PSRuleResults = Invoke-PSRule -InputPath $templatePath -Module 'PSRule.Rules.Azure' -As Summary;
           $PSRuleResults | Out-File $resultsFile 
           Write-Output $PSRuleResults
 
           #Run a more detailed analysis
           Invoke-PSRule -InputPath $templatePath -Module 'PSRule.Rules.Azure' -As Detail;
+          
+      - name: Upload PSRule Artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: PSRuleOut
+          path: "psruleout.txt"
