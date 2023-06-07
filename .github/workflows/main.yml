@@ -80,10 +80,20 @@ jobs:
           # Check against Azure Rules
           $resultsFile = "psruleout.txt"
           $PSRuleResults = Invoke-PSRule -InputPath $templatePath -Module 'PSRule.Rules.Azure' -As Summary;
+          
+          # Create summary
+          $failures = $($PSRuleResults | Where-Object Fail -gt 0).length
+          $passes = $($PSRuleResults | Where-Object Pass -gt 0).length
+          echo '### PSRule Output! 🧑‍🏫' >> $GITHUB_STEP_SUMMARY
+          echo "Tests Passed: $passes" >> $GITHUB_STEP_SUMMARY
+          echo "Tests Failed: $failures" >> $GITHUB_STEP_SUMMARY
+          
+          # Prepare files for artifacts
           $PSRuleResults | Out-File $resultsFile 
-          Write-Output $PSRuleResults
+          
+          #Write-Output $PSRuleResults
 
-          #Run a more detailed analysis
+          #Run a more detailed analysis for stdOut
           Invoke-PSRule -InputPath $templatePath -Module 'PSRule.Rules.Azure' -As Detail;
           
       - name: Upload PSRule Artifact
