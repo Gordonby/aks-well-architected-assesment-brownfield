@@ -59,12 +59,9 @@ jobs:
           
       - shell: pwsh
         name: Run PSRule
+        env:
+          rg: "${{ github.event.inputs.RG }}"
         run: |
-          #Fill these out
-          $sub="${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-          $rg="${{ github.event.inputs.RG }}"
-          $tenantId="${{ secrets.AZURE_TENANT_ID }}"
-
           #Only change these if you really care
           $templatePath=".wellarchitected-output/templates/"
 
@@ -75,18 +72,18 @@ jobs:
           Install-Module -Name Az -Repository PSGallery -Force
 
           # Export data from the resource group
-          Export-AzRuleData -ResourceGroupName $rg -OutputPath $templatePath;
+          Export-AzRuleData -ResourceGroupName $Env:rg -OutputPath $templatePath;
 
           # Check against Azure Rules
           $resultsFile = "psruleout.txt"
           $PSRuleResults = Invoke-PSRule -InputPath $templatePath -Module 'PSRule.Rules.Azure' -As Summary;
           
-          # Create summary
+          # Create GitHub workflow step summary
           $failures = $($PSRuleResults | Where-Object Fail -gt 0).length
           $passes = $($PSRuleResults | Where-Object Pass -gt 0).length
-          echo '### PSRule Output! 🧑‍🏫' >> $Env:GITHUB_STEP_SUMMARY
-          echo "Tests Passed: $passes" >> $Env:GITHUB_STEP_SUMMARY
-          echo "Tests Failed: $failures" >> $Env:GITHUB_STEP_SUMMARY
+          echo '### PSRule Analysis! 🧑‍🏫' >> $Env:GITHUB_STEP_SUMMARY
+          echo "Tests Passed ✅: $passes" >> $Env:GITHUB_STEP_SUMMARY
+          echo "Tests Failed ❌: $failures" >> $Env:GITHUB_STEP_SUMMARY
           
           # Prepare files for artifacts
           $PSRuleResults | Out-File $resultsFile 
